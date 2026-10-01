@@ -123,7 +123,36 @@ Note: The SQLite database file will be stored in Render's ephemeral filesystem. 
 ## License
 
 MIT
-## Deploying to Render with Docker
+## Deploying to Render
+
+This repo is deployed to Render two ways from the same GitHub repository, so the
+two build strategies can be compared:
+
+| Method | Render runtime | How the app is built | Live URL |
+|---|---|---|---|
+| Native GitHub build | `node` | Render buildpack runs `npm install`, then `node server.js` | https://dream-catcher-github.onrender.com |
+| Docker | `docker` | Render runs `docker build` on `./Dockerfile` | https://dream-catcher-5355.onrender.com |
+
+Both have auto-deploy enabled on `main`: one `git push` rebuilds both services.
+
+### Method A - native GitHub build (no Docker)
+
+1. Render dashboard -> **New** -> **Web Service** -> connect the GitHub repo
+2. **Language:** `Node`
+3. **Build Command:** `npm install`
+4. **Start Command:** `node server.js`
+5. Add env vars `GEMINI_API_KEY`, `GEMINI_MODEL`, `NODE_VERSION=22`, and
+   `npm_config_build_from_source=true`
+
+The last variable matters: the prebuilt `sqlite3` binary npm downloads needs
+glibc 2.38, which Render's Node image doesn't have, so the app crashes with
+`ERR_DLOPEN_FAILED`. Building from source compiles it against Render's own
+glibc. If you add the variable after a failed deploy, redeploy with
+**Clear build cache** - otherwise Render restores the old `node_modules` and
+npm skips the rebuild. The SQLite file lands at `./dreams.db`
+in the project directory, so leave `DATABASE_PATH` unset here.
+
+### Method B - Docker
 
 The app ships a multi-stage `Dockerfile` and a `render.yaml` blueprint, so Render
 builds the container straight from GitHub on every push to `main`.
