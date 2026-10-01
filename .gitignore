@@ -1,0 +1,12 @@
+# dependencies
+node_modules
+
+# secrets
+.env
+
+# local sqlite database
+*.db
+
+# logs
+logs
+*.log

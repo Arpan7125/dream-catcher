@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: dream-catcher
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false          # set this yourself in the Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      - key: DATABASE_PATH
+        value: /app/data/dreams.db
