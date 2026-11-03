@@ -45,6 +45,12 @@ git push -u origin staging
 Create a second Render web service using the `staging` branch and the same
 PostgreSQL connection pattern. Test it there before merging to `main`.
 
+Current staging URL: <https://dream-catcher-staging-njf7.onrender.com>
+
+Set `DATABASE_URL` to the Render `dream-catcher-db` connection string and add
+the same `GEMINI_API_KEY` used by the production service before testing dream
+interpretations.
+
 ```powershell
 git switch main
 git merge staging
