@@ -4,7 +4,7 @@ Short notes for testing the app locally and deploying a staging copy on Render.
 
 ## 1. Test the live app
 
-Open [dream-catcher-5355.onrender.com](https://dream-catcher-5355.onrender.com/),
+Open [dream-catcher-github.onrender.com](https://dream-catcher-github.onrender.com/),
 enter a dream, and select **Get Interpretation**. The app saves the dream and
 shows the generated interpretation below the form.
 
