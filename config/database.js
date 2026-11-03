@@ -26,16 +26,16 @@ export async function getDatabase() {
           await pool.query(sql.replace(/AUTOINCREMENT/g, ''));
         },
         async all(sql, params = []) {
-          return (await pool.query(toPostgresSql(sql), params)).rows;
+          return (await pool.query(toPostgresSql(sql), normalizeParams(params))).rows;
         },
         async get(sql, params = []) {
-          return (await pool.query(toPostgresSql(sql), params)).rows[0];
+          return (await pool.query(toPostgresSql(sql), normalizeParams(params))).rows[0];
         },
         async run(sql, params = []) {
           const postgresSql = /^\s*INSERT\s/i.test(sql) && !/\bRETURNING\b/i.test(sql)
             ? `${sql} RETURNING id`
             : sql;
-          const result = await pool.query(toPostgresSql(postgresSql), params);
+          const result = await pool.query(toPostgresSql(postgresSql), normalizeParams(params));
           return { changes: result.rowCount, lastID: result.rows[0]?.id };
         },
         async close() {
@@ -57,6 +57,10 @@ export async function getDatabase() {
 function toPostgresSql(sql) {
   let index = 0;
   return sql.replace(/\?/g, () => `$${++index}`);
+}
+
+function normalizeParams(params) {
+  return Array.isArray(params) ? params : [params];
 }
 
 export async function closeDatabase() {
