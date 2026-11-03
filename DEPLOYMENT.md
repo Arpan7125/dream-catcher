@@ -17,10 +17,10 @@ in two ways, both starting from the same GitHub repository:
 
 ## 1. About the app
 
-- **Stack:** Node.js 22, Express, SQLite (`sqlite3` + `sqlite`), Google Gemini for dream interpretations
+- **Stack:** Node.js 22, Express, PostgreSQL on Render with SQLite fallback locally, Google Gemini
 - **Entry point:** `server.js`. It serves `public/` as static files and the API at `/api/dreams`
 - **Port:** reads `process.env.PORT`, falling back to `3001`. Render sets `PORT` itself, so no code change is needed
-- **Database:** a SQLite file. Its location comes from `DATABASE_PATH`, falling back to `./dreams.db`
+- **Database:** PostgreSQL when `DATABASE_URL` is set; otherwise SQLite at `DATABASE_PATH` or `./dreams.db`
 
 ### Environment variables
 
@@ -30,7 +30,8 @@ in two ways, both starting from the same GitHub repository:
 | `GEMINI_MODEL` | both | Gemini model name, e.g. `gemini-3.6-flash` |
 | `NODE_VERSION` | Method A | Node version for Render's buildpack (`22`) |
 | `npm_config_build_from_source` | Method A | Makes npm compile `sqlite3` from source (`true`), see section 4.2 |
-| `DATABASE_PATH` | Method B | Where the SQLite file goes inside the container (`/app/data/dreams.db`) |
+| `DATABASE_URL` | Render | PostgreSQL connection string supplied by the Render database service |
+| `DATABASE_PATH` | Local fallback | Where the SQLite file lives when PostgreSQL is not configured |
 
 ---
 
@@ -362,7 +363,7 @@ it will do the same on Render.
    |---|---|
    | `GEMINI_API_KEY` | *your key* |
    | `GEMINI_MODEL` | `gemini-3.6-flash` |
-   | `DATABASE_PATH` | `/app/data/dreams.db` |
+   | `DATABASE_URL` | Render PostgreSQL connection string |
 
 5. Click **Create Web Service**
 
@@ -386,8 +387,17 @@ services:
         sync: false          # set this yourself in the Render dashboard
       - key: GEMINI_MODEL
         value: gemini-3.6-flash
-      - key: DATABASE_PATH
-        value: /app/data/dreams.db
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dream-catcher-db
+          property: connectionString
+
+  - type: pserv
+    name: dream-catcher-db
+    plan: free
+    region: singapore
+    databaseName: dream_catcher
+    user: dream_catcher
 ```
 
 `sync: false` makes Render ask for the key in the dashboard, so the secret never goes into git.
@@ -462,9 +472,8 @@ and cleared the cache. Docker gives you the control; the native build is quicker
 
 ## 8. Limitations on the free plan
 
-- **No persistent disk.** The SQLite file is deleted on every redeploy or restart, so saved
-  dreams don't survive. To keep them, mount a Render Disk at `/app/data` (paid plans) or
-  switch to Render Postgres.
+- **Database persistence.** Render Postgres keeps saved dreams across deploys and restarts.
+  The local SQLite fallback is intended for development only.
 - **Services sleep.** Free services stop after about 15 minutes without traffic. The first
   request after that takes around 50 seconds while the service wakes up.
 
