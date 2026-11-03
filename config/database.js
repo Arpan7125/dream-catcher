@@ -36,7 +36,7 @@ export async function getDatabase() {
             ? `${sql} RETURNING id`
             : sql;
           const result = await pool.query(toPostgresSql(postgresSql), normalizeParams(params));
-          return { changes: result.rowCount, lastID: result.rows[0]?.id };
+          return { changes: result.rowCount, lastID: result.rows[0]?.id, row: result.rows[0] };
         },
         async close() {
           await pool.end();

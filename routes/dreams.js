@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
     );
     
     // Fetch the inserted record
-    const dream = await db.get('SELECT * FROM dreams WHERE id = ?', result.lastID);
+    const dream = result.row || await db.get('SELECT * FROM dreams WHERE id = ?', result.lastID);
     
     res.status(201).json(dream);
   } catch (error) {
