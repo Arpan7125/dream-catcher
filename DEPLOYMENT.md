@@ -394,7 +394,6 @@ services:
 
 databases:
   - name: dream-catcher-db
-    type: postgres
     plan: free
     region: singapore
     databaseName: dream_catcher
