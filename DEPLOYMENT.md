@@ -392,8 +392,9 @@ services:
           name: dream-catcher-db
           property: connectionString
 
-  - type: pserv
-    name: dream-catcher-db
+databases:
+  - name: dream-catcher-db
+    type: postgres
     plan: free
     region: singapore
     databaseName: dream_catcher
