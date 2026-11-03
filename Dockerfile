@@ -17,8 +17,7 @@ RUN npm ci --omit=dev
 FROM node:22-trixie-slim AS runtime
 
 ENV NODE_ENV=production \
-    PORT=3001 \
-    DATABASE_PATH=/app/data/dreams.db
+    PORT=3001
 
 WORKDIR /app
 
@@ -30,9 +29,6 @@ COPY config ./config
 COPY routes ./routes
 COPY utils ./utils
 COPY public ./public
-
-# Writable location for the SQLite file (mount a Render disk here to persist it)
-RUN mkdir -p /app/data && chown -R node:node /app/data
 
 USER node
 
